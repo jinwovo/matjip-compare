@@ -1,0 +1,15 @@
+{
+  "name": "good-restaurant",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "지도에서 음식점을 누르면 네이버·카카오·구글의 별점/리뷰수를 한 번에 비교하는 맛집 지도 (개인용 프로토타입)",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server/index.mjs",
+    "dev": "node --env-file-if-exists=.env --watch server/index.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.112.4",
+    "express": "^4.19.2"
+  }
+}

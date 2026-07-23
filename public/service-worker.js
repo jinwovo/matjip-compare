@@ -1,7 +1,7 @@
 // 맛집비교 지도 서비스워커 — 앱 셸/지도 라이브러리/타일 캐싱 (오프라인·빠른 재실행)
 // API 응답은 캐시하지 않는다(항상 최신 별점).
-const SHELL_CACHE = 'goodrest-shell-v27';
-const RUNTIME_CACHE = 'goodrest-runtime-v27';
+const SHELL_CACHE = 'goodrest-shell-v28';
+const RUNTIME_CACHE = 'goodrest-runtime-v28';
 const SHELL = [
   '/',
   '/index.html',

@@ -82,6 +82,8 @@ app.get('/api/search', async (req, res) => {
               scoreCount: dc.scoreCount,
               reviewCount: dc.reviewCount,
               dcScore: dc.dcScore,
+              images: dc.images,
+              review: dc.review,
               url: dc.url,
             };
         } catch (e) {
@@ -126,7 +128,7 @@ app.get('/api/enrich', async (req, res) => {
             .then((list) => {
               const dc = bestDiningcodeMatch(list, { name, lat, lng });
               return dc
-                ? { score: dc.score, scoreCount: dc.scoreCount, reviewCount: dc.reviewCount, dcScore: dc.dcScore, url: dc.url }
+                ? { score: dc.score, scoreCount: dc.scoreCount, reviewCount: dc.reviewCount, dcScore: dc.dcScore, images: dc.images, review: dc.review, url: dc.url }
                 : null;
             })
             .catch((e) => {
@@ -250,7 +252,7 @@ async function enrichPlace(n) {
         : { id: n.id, url: `https://m.place.naver.com/restaurant/${n.id}/home`, pending: false },
       kakao: k ? { score: k.score, scoreCount: k.scoreCount, reviewCount: k.reviewCount, url: k.url } : null,
       diningcode: dc
-        ? { score: dc.score, scoreCount: dc.scoreCount, reviewCount: dc.reviewCount, dcScore: dc.dcScore, url: dc.url }
+        ? { score: dc.score, scoreCount: dc.scoreCount, reviewCount: dc.reviewCount, dcScore: dc.dcScore, images: dc.images, review: dc.review, url: dc.url }
         : null,
       google: null,
     },

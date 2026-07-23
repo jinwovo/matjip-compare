@@ -56,6 +56,16 @@ export async function searchDiningcode(query, lat, lng, { signal } = {}) {
         scoreCount: reviews > 0 ? reviews : null, // 별점 모수
         reviewCount: reviews > 0 ? reviews : null,
         dcScore: Number(p.score) || null, // 다이닝코드 자체 점수(100점 척도) — 참고용
+        images: Array.isArray(p.image_list) ? p.image_list.slice(0, 5) : p.image ? [p.image] : [], // 사진
+        review:
+          p.display_review && p.display_review.review_cont
+            ? {
+                // 검색어 강조용 <em> 등 HTML 태그 제거, 개행 정리
+                text: String(p.display_review.review_cont).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(),
+                user: p.display_review.user_nm || '',
+                date: p.display_review.review_reg_dt || '',
+              }
+            : null, // 대표 리뷰 스니펫
         url: rid ? `https://www.diningcode.com/profile.php?rid=${rid}` : null,
       };
     })

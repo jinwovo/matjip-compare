@@ -393,6 +393,15 @@ function visibleRestaurants() {
   list = [...list];
   if (state.sort === 'near') {
     list.sort((a, b) => distMeters(a) - distMeters(b)); // 가까운순(오름차순)
+  } else if (state.sort === 'now') {
+    // "지금" — 영업중(강한 가산) + 가까움(거리 페널티) + 종합점수 를 blend
+    const nowScore = (r) => {
+      const base = r.agg?.recommend ?? -1;
+      const pen = Math.min(0.6, (distMeters(r) / 1000) * 0.12); // km당 -0.12, 최대 -0.6
+      const openBonus = openInfo(r)?.open ? 1.5 : 0; // 영업중이면 확실히 위로
+      return base - pen + openBonus;
+    };
+    list.sort((a, b) => nowScore(b) - nowScore(a));
   } else {
     const key = state.sort;
     const val = (r) => {
@@ -740,9 +749,43 @@ function renderDetailExtras(r) {
       `<div class="open-line ${o.cls}"><span class="dot"></span><b>${o.label}</b>${bits ? ` <span class="open-sub">${esc(bits)}</span>` : ''}</div>`,
     );
   }
-  const photo = (nv.menus || []).find((m) => m.image)?.image;
-  if (photo) parts.push(`<img class="detail-photo" src="${esc(photo)}" alt="" loading="lazy" onerror="this.remove()">`);
+  // 사진 갤러리 (네이버 사진 + 다이닝코드 사진 + 메뉴 사진, 중복 제거 후 최대 8장)
+  const dc = r.platforms.diningcode || {};
+  const gallery = [
+    ...new Set([
+      ...(nv.photos || []),
+      ...(dc.images || []),
+      ...(nv.menus || []).map((m) => m.image).filter(Boolean),
+    ]),
+  ].slice(0, 8);
+  if (gallery.length) {
+    parts.push(
+      '<div class="gallery">' +
+        gallery
+          .map((u) => `<img class="gphoto" src="${esc(u)}" alt="" loading="lazy" onerror="this.remove()">`)
+          .join('') +
+        '</div>',
+    );
+  }
   if (nv.microReview) parts.push(`<p class="micro">“${esc(nv.microReview)}”</p>`);
+  // 리뷰 스니펫 (네이버 방문자 리뷰 + 다이닝코드 대표 리뷰)
+  const reviews = [];
+  if (nv.review && nv.review.text)
+    reviews.push({ src: '네이버', text: nv.review.text, meta: [nv.review.user, nv.review.date].filter(Boolean).join(' · ') });
+  if (dc.review && dc.review.text)
+    reviews.push({ src: '다이닝코드', text: dc.review.text, meta: [dc.review.user, dc.review.date].filter(Boolean).join(' · ') });
+  if (reviews.length) {
+    parts.push(
+      '<div class="reviews">' +
+        reviews
+          .map((rv) => {
+            const t = rv.text.length > 150 ? rv.text.slice(0, 150) + '…' : rv.text;
+            return `<div class="review"><div class="rv-head"><span class="rv-src">${rv.src}</span>${rv.meta ? `<span class="rv-meta">${esc(rv.meta)}</span>` : ''}</div><p class="rv-text">${esc(t)}</p></div>`;
+          })
+          .join('') +
+        '</div>',
+    );
+  }
   if (nv.menus && nv.menus.length) {
     parts.push(
       '<div class="menus">' +

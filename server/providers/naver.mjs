@@ -89,6 +89,10 @@ export async function naverRatings(id, { signal } = {}) {
   const openDesc = bizM ? decodeUnicode(bizM[3] || bizM[2] || '') || null : null;
   // 오늘 영업시간 문자열(있으면): "11:00 - 21:00" 형태
   const todayHours = extractTodayHours(html);
+  // 음식/리뷰 사진 (phinf 포토 인프라 URL만 — 파비콘/에셋 제외), 중복 제거 후 상위 6장
+  const photos = extractPhotos(html);
+  // 방문자 리뷰 스니펫 1개 (contents 필드)
+  const review = extractReview(html);
 
   return {
     platform: 'naver',
@@ -104,8 +108,27 @@ export async function naverRatings(id, { signal } = {}) {
     openStatus,                         // 현재 영업 상태
     openDesc,                           // 다음 변화 설명
     todayHours,                         // 오늘 영업시간(있으면)
+    photos,                             // 사진 URL 배열
+    review,                             // 방문자 리뷰 스니펫 {text,user,date}
     url: `https://m.place.naver.com/restaurant/${id}/home`,
   };
+}
+
+// phinf 포토 인프라 이미지 URL만 추출(파비콘/공유에셋 제외), 중복 제거 후 상위 N장
+function extractPhotos(html, limit = 6) {
+  const urls = [...html.matchAll(/https:\/\/[a-z0-9-]*phinf\.pstatic\.net\/[^\s"'\\)]+?\.(?:jpg|jpeg|png|webp)/gi)]
+    .map((m) => m[0])
+    .filter((u) => !/favicon|\/assets\//i.test(u));
+  return [...new Set(urls)].slice(0, limit);
+}
+
+// 방문자 리뷰 본문 1개를 뽑는다(구조 취약 — 실패 시 null). 너무 짧은 건 리뷰가 아니므로 제외.
+function extractReview(html) {
+  for (const m of html.matchAll(/"contents":"((?:[^"\\]|\\.){20,600})"/g)) {
+    const text = decodeUnicode(m[1]).replace(/<[^>]*>/g, '').replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
+    if (text.length >= 20) return { text, user: '', date: '' };
+  }
+  return null;
 }
 
 // newBusinessHours 의 오늘 요일 영업시간을 뽑는다(구조가 취약해 실패 시 null).

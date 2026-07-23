@@ -86,7 +86,9 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r
 let clusterGroup = makeClusterGroup();
 function makeClusterGroup() {
   return L.markerClusterGroup({
-    maxClusterRadius: 50,
+    // 줌이 깊을수록 덜 묶는다 — 초점 뷰(z14+)에선 거의 겹친 핀만 묶고 나머진 개별로,
+    // 지역 검색처럼 줌아웃(z≤12)했을 때만 크게 뭉친다.
+    maxClusterRadius: (z) => (z >= 15 ? 8 : z >= 14 ? 14 : z >= 12 ? 34 : 55),
     showCoverageOnHover: false,
     spiderfyOnMaxZoom: true,
     // 결과가 소량(≤60)이라 화면 밖 마커 컬링은 불필요. 켜두면 fitBounds 점프 직후

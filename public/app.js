@@ -196,7 +196,7 @@ async function runSearch(q) {
     await loadCandidates('/api/candidates?' + p.toString());
     const note = el('nlNote');
     note.hidden = false;
-    note.innerHTML = `📍 <b>${esc(loc.found ? loc.label : '현재 지도')}</b> · ${esc(loc.keyword || '맛집')}`;
+    note.innerHTML = `<b>${esc(loc.found ? loc.label : '현재 지도')}</b> · ${esc(loc.keyword || '맛집')}`;
   } catch (err) {
     alert('검색 오류: ' + err.message);
   } finally {
@@ -506,7 +506,7 @@ function renderList() {
       </div>
       <div class="li-main">
         <div class="li-name">${esc(r.name)}</div>
-        <div class="li-cat">${esc(r.category || '')}${agg?.reviews ? ' · 리뷰 ' + fmt(agg.reviews) : ''}${dist ? ` · 📍${dist}` : ''}${openBadge(r)}</div>
+        <div class="li-cat">${esc(r.category || '')}${agg?.reviews ? ' · 리뷰 ' + fmt(agg.reviews) : ''}${dist ? ` · <span class="li-dist">${dist}</span>` : ''}${openBadge(r)}</div>
         <div class="li-badges">${miniBadges(r)}</div>
       </div>
       <div class="li-score">
@@ -808,7 +808,7 @@ function renderDetailExtras(r) {
     const gmap = `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`;
     parts.push(
       `<div class="dir-row">
-        <a class="dir-btn kakao" href="${kakao}" target="_blank" rel="noopener">🧭 카카오맵 길찾기</a>
+        <a class="dir-btn kakao" href="${kakao}" target="_blank" rel="noopener">카카오맵 길찾기</a>
         <a class="dir-btn naver" href="${naver}" target="_blank" rel="noopener">네이버지도</a>
         <a class="dir-btn gmap" href="${gmap}" target="_blank" rel="noopener">구글맵</a>
       </div>`,

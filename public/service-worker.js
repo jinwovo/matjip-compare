@@ -1,7 +1,7 @@
 // 맛집비교 지도 서비스워커 — 앱 셸/지도 라이브러리/타일 캐싱 (오프라인·빠른 재실행)
 // API 응답은 캐시하지 않는다(항상 최신 별점).
-const SHELL_CACHE = 'goodrest-shell-v28';
-const RUNTIME_CACHE = 'goodrest-runtime-v28';
+const SHELL_CACHE = 'goodrest-shell-v31';
+const RUNTIME_CACHE = 'goodrest-runtime-v31';
 const SHELL = [
   '/',
   '/index.html',
@@ -42,7 +42,7 @@ self.addEventListener('fetch', (e) => {
   if (url.origin === location.origin && url.pathname.startsWith('/api/')) return;
 
   // 지도 타일 & Leaflet CDN: 런타임 캐시(cache-first) — 재방문 시 빠르고 오프라인 대응
-  if (url.hostname.includes('cartocdn.com') || url.hostname === 'unpkg.com') {
+  if (url.hostname.includes('cartocdn.com') || url.hostname === 'unpkg.com' || url.hostname === 'cdn.jsdelivr.net') {
     e.respondWith(
       caches.open(RUNTIME_CACHE).then(async (c) => {
         const hit = await c.match(e.request);
